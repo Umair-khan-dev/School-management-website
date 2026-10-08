@@ -1,0 +1,6 @@
+{
+  "name": "PinkEdu — School Management System",
+  "description": "Industry-level full-stack School Management System with student records, faculty management, attendance tracking, fee collection, payroll, and analytics.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
