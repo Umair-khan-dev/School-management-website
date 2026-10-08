@@ -1334,6 +1334,7 @@ function buildInitialSeedData(): DatabaseStore {
 class RelationalDatabaseEngine {
   private store: DatabaseStore;
   private pool: Pool | null = null;
+  private connectPromise: Promise<void> | null = null;
   private saveQueue: Promise<void> = Promise.resolve();
 
   constructor() {
@@ -1360,18 +1361,33 @@ class RelationalDatabaseEngine {
   }
 
   public async connect(): Promise<void> {
+    if (this.pool) return;
+    if (this.connectPromise) return this.connectPromise;
+
+    this.connectPromise = this.initializeConnection();
+    try {
+      await this.connectPromise;
+    } finally {
+      this.connectPromise = null;
+    }
+  }
+
+  private async initializeConnection(): Promise<void> {
     const host = process.env.MYSQL_HOST || '127.0.0.1';
     const port = Number(process.env.MYSQL_PORT) || 3306;
     const user = process.env.MYSQL_USER || 'root';
     const password = process.env.MYSQL_PASSWORD || '';
     const database = process.env.MYSQL_DATABASE || 'mydatabase';
-    const setupConnection = await mysql.createConnection({ host, port, user, password });
-    try {
-      await setupConnection.query(
-        `CREATE DATABASE IF NOT EXISTS \`${database.replace(/`/g, '``')}\` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci`
-      );
-    } finally {
-      await setupConnection.end();
+
+    if (process.env.MYSQL_CREATE_DATABASE !== 'false') {
+      const setupConnection = await mysql.createConnection({ host, port, user, password });
+      try {
+        await setupConnection.query(
+          `CREATE DATABASE IF NOT EXISTS \`${database.replace(/`/g, '``')}\` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci`
+        );
+      } finally {
+        await setupConnection.end();
+      }
     }
 
     const pool = mysql.createPool({

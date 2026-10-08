@@ -90,7 +90,22 @@ npm run dev
 ```
 The full-stack server starts on `http://localhost:3000`.
 
-## 8. Default Role Credentials
+## 8. Deploying to Vercel
+The frontend is built as a static Vite site, and `api/[...path].ts` provides the serverless API used by login and the other modules. In the Vercel project settings, use the repository root as the project root and add these environment variables for Production (and Preview if needed):
+
+```env
+MYSQL_HOST=your-public-mysql-host
+MYSQL_PORT=3306
+MYSQL_USER=your-mysql-user
+MYSQL_PASSWORD=your-mysql-password
+MYSQL_DATABASE=mydatabase
+MYSQL_CREATE_DATABASE=false
+JWT_SECRET=replace-with-a-long-random-secret
+```
+
+Use a MySQL database reachable from Vercel; `127.0.0.1` refers to the serverless instance, not your computer. Create the database in your hosting provider first, then redeploy after setting the variables. Never commit `.env` or production credentials.
+
+## 9. Default Role Credentials
 | Role | Email | Password |
 | :--- | :--- | :--- |
 | **Admin** | `admin@pinkedu.edu` | `Admin@123` |
