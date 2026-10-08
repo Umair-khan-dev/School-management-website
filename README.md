@@ -85,6 +85,7 @@ MYSQL_DATABASE=mydatabase
 ## 7. Running the Project
 ```bash
 npm install
+npm run build
 npm run dev
 ```
 The full-stack server starts on `http://localhost:3000`.
