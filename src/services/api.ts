@@ -56,6 +56,7 @@ export async function apiRequest<T = any>(
   const token = getAuthToken();
   const reqHeaders: Record<string, string> = {
     'Content-Type': 'application/json',
+    Accept: 'application/json',
     ...(headers as Record<string, string>),
   };
 
@@ -85,9 +86,15 @@ export async function apiRequest<T = any>(
   const contentType = response.headers.get('content-type') || '';
   const rawText = await response.text();
 
+  if (response.status === 204) {
+    return {} as T;
+  }
+
   let data: any = {
     success: false,
-    message: 'Unexpected server response.',
+    message: rawText.trim()
+      ? `Unexpected response from ${url} (HTTP ${response.status}, ${contentType || 'unknown content type'}).`
+      : `The server returned an empty response for ${url} (HTTP ${response.status}). Check the Vercel function logs and database environment variables.`,
   };
 
   if (rawText) {
